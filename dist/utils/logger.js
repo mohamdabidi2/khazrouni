@@ -5,17 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
 const pino_1 = __importDefault(require("pino"));
-const isProduction = process.env.NODE_ENV === 'production';
+// Detect production or cloud environments (Render, Heroku, etc.)
+const isProduction = process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.RENDER) ||
+    Boolean(process.env.PORT && process.env.PORT !== '3000');
 exports.logger = (0, pino_1.default)({
     level: process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug'),
-    transport: isProduction
-        ? undefined
+    ...(isProduction
+        ? {}
         : {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'HH:MM:ss Z',
-                ignore: 'pid,hostname'
-            }
-        }
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true,
+                    translateTime: 'HH:MM:ss Z',
+                    ignore: 'pid,hostname',
+                },
+            },
+        }),
 });
