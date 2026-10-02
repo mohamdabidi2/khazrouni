@@ -1,0 +1,118 @@
+import { Request } from 'express';
+import { Types } from 'mongoose';
+
+export enum UserRole {
+  CLIENT = 'CLIENT',
+  ADMIN = 'ADMIN'
+}
+
+export enum UserStatus {
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  REJECTED = 'REJECTED',
+  BLOCKED = 'BLOCKED'
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED',
+  FAILED = 'FAILED'
+}
+
+export enum WalletTransactionType {
+  DEPOSIT = 'DEPOSIT',
+  RESERVE = 'RESERVE',
+  REFUND = 'REFUND',
+  CHARGE = 'CHARGE',
+  ADJUSTMENT = 'ADJUSTMENT',
+  DEBT_PAYMENT = 'DEBT_PAYMENT',
+  DEBT_RESET = 'DEBT_RESET'
+}
+
+export enum NotificationType {
+  ACCOUNT_APPROVED = 'ACCOUNT_APPROVED',
+  ACCOUNT_REJECTED = 'ACCOUNT_REJECTED',
+  ORDER_CREATED = 'ORDER_CREATED',
+  ORDER_CONFIRMED = 'ORDER_CONFIRMED',
+  ORDER_PROCESSING = 'ORDER_PROCESSING',
+  ORDER_COMPLETED = 'ORDER_COMPLETED',
+  ORDER_CANCELLED = 'ORDER_CANCELLED',
+  ORDER_REJECTED = 'ORDER_REJECTED',
+  SYSTEM = 'SYSTEM',
+  DEBT_SETTLED = 'DEBT_SETTLED'
+}
+
+export enum AuditAction {
+  USER_APPROVED = 'USER_APPROVED',
+  USER_REJECTED = 'USER_REJECTED',
+  USER_BLOCKED = 'USER_BLOCKED',
+  USER_UNBLOCKED = 'USER_UNBLOCKED',
+  BALANCE_ADDED = 'BALANCE_ADDED',
+  DEBT_SETTLED = 'DEBT_SETTLED',
+  DEBT_RESET = 'DEBT_RESET',
+  ORDER_CONFIRMED = 'ORDER_CONFIRMED',
+  ORDER_REJECTED = 'ORDER_REJECTED',
+  ORDER_STATUS_CHANGED = 'ORDER_STATUS_CHANGED',
+  PACK_CREATED = 'PACK_CREATED',
+  PACK_UPDATED = 'PACK_UPDATED',
+  PACK_DELETED = 'PACK_DELETED'
+}
+
+export enum ErrorCode {
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  ACCOUNT_PENDING = 'ACCOUNT_PENDING',
+  ACCOUNT_BLOCKED = 'ACCOUNT_BLOCKED',
+  ACCOUNT_REJECTED = 'ACCOUNT_REJECTED',
+  INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE',
+  PACK_NOT_FOUND = 'PACK_NOT_FOUND',
+  PACK_DISABLED = 'PACK_DISABLED',
+  NETWORK_DISABLED = 'NETWORK_DISABLED',
+  ORDER_NOT_FOUND = 'ORDER_NOT_FOUND',
+  ORDER_ALREADY_CANCELLED = 'ORDER_ALREADY_CANCELLED',
+  ORDER_CANNOT_BE_CANCELLED = 'ORDER_CANNOT_BE_CANCELLED',
+  INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  FORBIDDEN = 'FORBIDDEN',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  DUPLICATE_USERNAME = 'DUPLICATE_USERNAME',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  INTERNAL_ERROR = 'INTERNAL_ERROR'
+}
+
+export interface IJwtPayload {
+  userId: string;
+  username: string;
+  role: UserRole;
+  status: UserStatus;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: IJwtPayload;
+}
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface OrderTimelineEvent {
+  status: OrderStatus;
+  message: string;
+  actorType: 'CLIENT' | 'ADMIN' | 'SYSTEM';
+  actorId?: string;
+  createdAt: Date;
+}

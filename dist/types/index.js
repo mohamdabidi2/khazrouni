@@ -1,0 +1,85 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErrorCode = exports.AuditAction = exports.NotificationType = exports.WalletTransactionType = exports.OrderStatus = exports.UserStatus = exports.UserRole = void 0;
+var UserRole;
+(function (UserRole) {
+    UserRole["CLIENT"] = "CLIENT";
+    UserRole["ADMIN"] = "ADMIN";
+})(UserRole || (exports.UserRole = UserRole = {}));
+var UserStatus;
+(function (UserStatus) {
+    UserStatus["PENDING"] = "PENDING";
+    UserStatus["ACTIVE"] = "ACTIVE";
+    UserStatus["REJECTED"] = "REJECTED";
+    UserStatus["BLOCKED"] = "BLOCKED";
+})(UserStatus || (exports.UserStatus = UserStatus = {}));
+var OrderStatus;
+(function (OrderStatus) {
+    OrderStatus["PENDING"] = "PENDING";
+    OrderStatus["CONFIRMED"] = "CONFIRMED";
+    OrderStatus["PROCESSING"] = "PROCESSING";
+    OrderStatus["COMPLETED"] = "COMPLETED";
+    OrderStatus["REJECTED"] = "REJECTED";
+    OrderStatus["CANCELLED"] = "CANCELLED";
+    OrderStatus["FAILED"] = "FAILED";
+})(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
+var WalletTransactionType;
+(function (WalletTransactionType) {
+    WalletTransactionType["DEPOSIT"] = "DEPOSIT";
+    WalletTransactionType["RESERVE"] = "RESERVE";
+    WalletTransactionType["REFUND"] = "REFUND";
+    WalletTransactionType["CHARGE"] = "CHARGE";
+    WalletTransactionType["ADJUSTMENT"] = "ADJUSTMENT";
+    WalletTransactionType["DEBT_PAYMENT"] = "DEBT_PAYMENT";
+    WalletTransactionType["DEBT_RESET"] = "DEBT_RESET";
+})(WalletTransactionType || (exports.WalletTransactionType = WalletTransactionType = {}));
+var NotificationType;
+(function (NotificationType) {
+    NotificationType["ACCOUNT_APPROVED"] = "ACCOUNT_APPROVED";
+    NotificationType["ACCOUNT_REJECTED"] = "ACCOUNT_REJECTED";
+    NotificationType["ORDER_CREATED"] = "ORDER_CREATED";
+    NotificationType["ORDER_CONFIRMED"] = "ORDER_CONFIRMED";
+    NotificationType["ORDER_PROCESSING"] = "ORDER_PROCESSING";
+    NotificationType["ORDER_COMPLETED"] = "ORDER_COMPLETED";
+    NotificationType["ORDER_CANCELLED"] = "ORDER_CANCELLED";
+    NotificationType["ORDER_REJECTED"] = "ORDER_REJECTED";
+    NotificationType["SYSTEM"] = "SYSTEM";
+    NotificationType["DEBT_SETTLED"] = "DEBT_SETTLED";
+})(NotificationType || (exports.NotificationType = NotificationType = {}));
+var AuditAction;
+(function (AuditAction) {
+    AuditAction["USER_APPROVED"] = "USER_APPROVED";
+    AuditAction["USER_REJECTED"] = "USER_REJECTED";
+    AuditAction["USER_BLOCKED"] = "USER_BLOCKED";
+    AuditAction["USER_UNBLOCKED"] = "USER_UNBLOCKED";
+    AuditAction["BALANCE_ADDED"] = "BALANCE_ADDED";
+    AuditAction["DEBT_SETTLED"] = "DEBT_SETTLED";
+    AuditAction["DEBT_RESET"] = "DEBT_RESET";
+    AuditAction["ORDER_CONFIRMED"] = "ORDER_CONFIRMED";
+    AuditAction["ORDER_REJECTED"] = "ORDER_REJECTED";
+    AuditAction["ORDER_STATUS_CHANGED"] = "ORDER_STATUS_CHANGED";
+    AuditAction["PACK_CREATED"] = "PACK_CREATED";
+    AuditAction["PACK_UPDATED"] = "PACK_UPDATED";
+    AuditAction["PACK_DELETED"] = "PACK_DELETED";
+})(AuditAction || (exports.AuditAction = AuditAction = {}));
+var ErrorCode;
+(function (ErrorCode) {
+    ErrorCode["INVALID_CREDENTIALS"] = "INVALID_CREDENTIALS";
+    ErrorCode["ACCOUNT_PENDING"] = "ACCOUNT_PENDING";
+    ErrorCode["ACCOUNT_BLOCKED"] = "ACCOUNT_BLOCKED";
+    ErrorCode["ACCOUNT_REJECTED"] = "ACCOUNT_REJECTED";
+    ErrorCode["INSUFFICIENT_BALANCE"] = "INSUFFICIENT_BALANCE";
+    ErrorCode["PACK_NOT_FOUND"] = "PACK_NOT_FOUND";
+    ErrorCode["PACK_DISABLED"] = "PACK_DISABLED";
+    ErrorCode["NETWORK_DISABLED"] = "NETWORK_DISABLED";
+    ErrorCode["ORDER_NOT_FOUND"] = "ORDER_NOT_FOUND";
+    ErrorCode["ORDER_ALREADY_CANCELLED"] = "ORDER_ALREADY_CANCELLED";
+    ErrorCode["ORDER_CANNOT_BE_CANCELLED"] = "ORDER_CANNOT_BE_CANCELLED";
+    ErrorCode["INVALID_STATUS_TRANSITION"] = "INVALID_STATUS_TRANSITION";
+    ErrorCode["UNAUTHORIZED"] = "UNAUTHORIZED";
+    ErrorCode["FORBIDDEN"] = "FORBIDDEN";
+    ErrorCode["VALIDATION_ERROR"] = "VALIDATION_ERROR";
+    ErrorCode["DUPLICATE_USERNAME"] = "DUPLICATE_USERNAME";
+    ErrorCode["USER_NOT_FOUND"] = "USER_NOT_FOUND";
+    ErrorCode["INTERNAL_ERROR"] = "INTERNAL_ERROR";
+})(ErrorCode || (exports.ErrorCode = ErrorCode = {}));
