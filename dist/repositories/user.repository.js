@@ -17,6 +17,12 @@ class UserRepository {
     async updateById(id, update, session) {
         return user_model_1.UserModel.findByIdAndUpdate(id, update, { new: true, session });
     }
+    async saveFcmToken(userId, token) {
+        await user_model_1.UserModel.findByIdAndUpdate(userId, { fcmToken: token });
+    }
+    async findByRole(role) {
+        return user_model_1.UserModel.find({ role });
+    }
     async updateBalance(id, amountChange, session) {
         // Atomic update with min balance condition to prevent negative balance
         const filter = { _id: id };

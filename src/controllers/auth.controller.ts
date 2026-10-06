@@ -1,16 +1,19 @@
 import { Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { UserRepository } from '../repositories/user.repository';
 import { ApiResponse } from '../utils/response';
 import { AuthenticatedRequest } from '../types';
 
 export class AuthController {
   private authService: AuthService;
   private userService: UserService;
+  private userRepo: UserRepository;
 
   constructor() {
     this.authService = new AuthService();
     this.userService = new UserService();
+    this.userRepo = new UserRepository();
   }
 
   register = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -67,6 +70,19 @@ export class AuthController {
       const { oldPassword, newPassword } = req.body;
       await this.authService.changePassword(req.user!.userId, oldPassword, newPassword);
       return ApiResponse.success(res, null, 'تم تغيير كلمة المرور بنجاح');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  saveFcmToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.body;
+      if (!token || typeof token !== 'string') {
+        return ApiResponse.success(res, null, 'token مطلوب');
+      }
+      await this.userRepo.saveFcmToken(req.user!.userId, token);
+      return ApiResponse.success(res, null, 'تم حفظ رمز الإشعارات');
     } catch (error) {
       next(error);
     }

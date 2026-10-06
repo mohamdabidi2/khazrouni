@@ -11,6 +11,7 @@ const types_1 = require("../types");
 const errors_1 = require("../utils/errors");
 const transaction_util_1 = require("../utils/transaction.util");
 const socket_service_1 = require("../sockets/socket.service");
+const fcm_service_1 = require("./fcm.service");
 class WalletService {
     walletRepo;
     userRepo;
@@ -91,6 +92,8 @@ class WalletService {
             // Emit real-time socket events
             socket_service_1.SocketEmitter.emitToUser(userId, 'wallet.updated', { balance: balanceAfter, transaction });
             socket_service_1.SocketEmitter.emitToUser(userId, 'notification.created', notif);
+            // FCM
+            fcm_service_1.FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => { });
             return {
                 balance: balanceAfter,
                 transaction
@@ -166,6 +169,8 @@ class WalletService {
             socket_service_1.SocketEmitter.emitToUser(userId, 'user.debt_updated', { debt: debtAfter });
             socket_service_1.SocketEmitter.emitToUser(userId, 'wallet.updated', { debt: debtAfter, transaction });
             socket_service_1.SocketEmitter.emitToUser(userId, 'notification.created', notif);
+            // FCM
+            fcm_service_1.FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => { });
             return {
                 settledAmount,
                 debtBefore,
@@ -231,6 +236,8 @@ class WalletService {
             socket_service_1.SocketEmitter.emitToUser(userId, 'user.debt_updated', { debt: 0 });
             socket_service_1.SocketEmitter.emitToUser(userId, 'wallet.updated', { debt: 0, transaction });
             socket_service_1.SocketEmitter.emitToUser(userId, 'notification.created', notif);
+            // FCM
+            fcm_service_1.FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => { });
             return {
                 clearedAmount,
                 debtBefore,

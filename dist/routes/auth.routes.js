@@ -14,4 +14,5 @@ router.post('/refresh', rate_limiter_middleware_1.authRateLimiter, (0, validate_
 router.post('/logout', auth_middleware_1.authenticate, controller.logout);
 router.get('/me', auth_middleware_1.authenticate, controller.me);
 router.post('/change-password', auth_middleware_1.authenticate, (0, validate_middleware_1.validateRequest)(validators_1.changePasswordSchema), controller.changePassword);
+router.put('/fcm-token', auth_middleware_1.authenticate, controller.saveFcmToken);
 exports.default = router;

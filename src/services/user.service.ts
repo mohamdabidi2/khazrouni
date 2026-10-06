@@ -16,6 +16,8 @@ import {
 } from '../types';
 import { NotFoundError, AppError } from '../utils/errors';
 import { SocketEmitter } from '../sockets/socket.service';
+import { FcmEmitter } from './fcm.service';
+
 
 export class UserService {
   private userRepo: UserRepository;
@@ -239,6 +241,9 @@ export class UserService {
     if (newStatus === UserStatus.ACTIVE) {
       SocketEmitter.emitToUser(targetUserId, 'user.approved', { user });
     }
+    // FCM
+    FcmEmitter.emitToUser(targetUserId, notif.title, notif.message).catch(() => {});
+
 
     return user;
   }

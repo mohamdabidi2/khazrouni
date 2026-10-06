@@ -19,5 +19,6 @@ router.post('/refresh', authRateLimiter, validateRequest(refreshTokenSchema), co
 router.post('/logout', authenticate, controller.logout);
 router.get('/me', authenticate, controller.me);
 router.post('/change-password', authenticate, validateRequest(changePasswordSchema), controller.changePassword);
+router.put('/fcm-token', authenticate, controller.saveFcmToken);
 
 export default router;

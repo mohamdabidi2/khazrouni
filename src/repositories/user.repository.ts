@@ -20,6 +20,15 @@ export class UserRepository {
     return UserModel.findByIdAndUpdate(id, update, { new: true, session });
   }
 
+  async saveFcmToken(userId: string, token: string): Promise<void> {
+    await UserModel.findByIdAndUpdate(userId, { fcmToken: token });
+  }
+
+  async findByRole(role: string): Promise<IUser[]> {
+    return UserModel.find({ role });
+  }
+
+
   async updateBalance(id: string, amountChange: number, session?: ClientSession): Promise<IUser | null> {
     // Atomic update with min balance condition to prevent negative balance
     const filter: FilterQuery<IUser> = { _id: id };

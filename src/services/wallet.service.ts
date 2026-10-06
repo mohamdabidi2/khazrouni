@@ -8,6 +8,8 @@ import { WalletTransactionType, NotificationType, AuditAction, ErrorCode } from 
 import { AppError, NotFoundError } from '../utils/errors';
 import { runInTransaction } from '../utils/transaction.util';
 import { SocketEmitter } from '../sockets/socket.service';
+import { FcmEmitter } from './fcm.service';
+
 
 export class WalletService {
   private walletRepo: WalletRepository;
@@ -116,6 +118,9 @@ export class WalletService {
       // Emit real-time socket events
       SocketEmitter.emitToUser(userId, 'wallet.updated', { balance: balanceAfter, transaction });
       SocketEmitter.emitToUser(userId, 'notification.created', notif);
+      // FCM
+      FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => {});
+
 
       return {
         balance: balanceAfter,
@@ -217,6 +222,9 @@ export class WalletService {
       SocketEmitter.emitToUser(userId, 'user.debt_updated', { debt: debtAfter });
       SocketEmitter.emitToUser(userId, 'wallet.updated', { debt: debtAfter, transaction });
       SocketEmitter.emitToUser(userId, 'notification.created', notif);
+      // FCM
+      FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => {});
+
 
       return {
         settledAmount,
@@ -304,6 +312,9 @@ export class WalletService {
       SocketEmitter.emitToUser(userId, 'user.debt_updated', { debt: 0 });
       SocketEmitter.emitToUser(userId, 'wallet.updated', { debt: 0, transaction });
       SocketEmitter.emitToUser(userId, 'notification.created', notif);
+      // FCM
+      FcmEmitter.emitToUser(userId, notif.title, notif.message).catch(() => {});
+
 
       return {
         clearedAmount,

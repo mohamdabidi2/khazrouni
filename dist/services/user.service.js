@@ -12,6 +12,7 @@ const pack_repository_1 = require("../repositories/pack.repository");
 const types_1 = require("../types");
 const errors_1 = require("../utils/errors");
 const socket_service_1 = require("../sockets/socket.service");
+const fcm_service_1 = require("./fcm.service");
 class UserService {
     userRepo;
     orderRepo;
@@ -186,6 +187,8 @@ class UserService {
         if (newStatus === types_1.UserStatus.ACTIVE) {
             socket_service_1.SocketEmitter.emitToUser(targetUserId, 'user.approved', { user });
         }
+        // FCM
+        fcm_service_1.FcmEmitter.emitToUser(targetUserId, notif.title, notif.message).catch(() => { });
         return user;
     }
     async getAdminUserDetails(userId) {

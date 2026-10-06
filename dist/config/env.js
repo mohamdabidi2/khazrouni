@@ -18,5 +18,6 @@ exports.env = {
     CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
     ADMIN_USERNAME: process.env.ADMIN_USERNAME || 'admin_khazrouni',
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'AdminSecure@2026!',
-    ADMIN_FULL_NAME: process.env.ADMIN_FULL_NAME || 'المدير العام'
+    ADMIN_FULL_NAME: process.env.ADMIN_FULL_NAME || 'المدير العام',
+    FIREBASE_CREDENTIALS_JSON: process.env.FIREBASE_CREDENTIALS_JSON || ''
 };

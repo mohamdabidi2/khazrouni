@@ -11,6 +11,7 @@ export interface IUser extends Document {
   balance: number;
   debt: number;
   lastLoginAt?: Date;
+  fcmToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +61,10 @@ const userSchema = new Schema<IUser>(
     },
     lastLoginAt: {
       type: Date
+    },
+    fcmToken: {
+      type: String,
+      default: null
     }
   },
   {

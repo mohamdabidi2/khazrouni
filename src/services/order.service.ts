@@ -11,10 +11,12 @@ import {
   OrderStatus,
   WalletTransactionType,
   NotificationType,
+  UserRole,
   UserStatus,
   AuditAction,
   ErrorCode
 } from '../types';
+import { UserModel } from '../models/user.model';
 import {
   AppError,
   NotFoundError,
@@ -23,6 +25,8 @@ import {
 } from '../utils/errors';
 import { runInTransaction } from '../utils/transaction.util';
 import { SocketEmitter } from '../sockets/socket.service';
+import { FcmEmitter } from './fcm.service';
+
 
 export class OrderService {
   private orderRepo: OrderRepository;
@@ -152,12 +156,58 @@ export class OrderService {
         session
       );
 
+      // Create Notification in DB for all admins so it appears in their notifications list
+      const admins = await UserModel.find({ role: UserRole.ADMIN }).session(session || null);
+      const adminNotifTitle = '🛒 طلب شراء جديد';
+      const adminNotifMessage = `قام العميل ${user.fullName} (${user.username}) بشراء باقة ${pack.name} (${pack.dataAmount}) للرقم ${cleanedPhone} بمبلغ ${pack.price.toFixed(3)} د.ت`;
+      for (const admin of admins) {
+        const adminNotif = await this.notifRepo.create(
+          {
+            userId: admin._id,
+            title: adminNotifTitle,
+            message: adminNotifMessage,
+            type: NotificationType.ORDER_CREATED,
+            metadata: {
+              orderId: order._id.toString(),
+              orderNumber,
+              clientId,
+              clientName: user.fullName,
+              clientUsername: user.username,
+              beneficiaryNumber: cleanedPhone,
+              packName: pack.name,
+              dataAmount: pack.dataAmount,
+              price: pack.price
+            }
+          },
+          session
+        );
+        SocketEmitter.emitToUser(admin._id.toString(), 'notification.created', adminNotif);
+      }
+
       // 7. Emit real-time events
       SocketEmitter.emitToUser(clientId, 'user.debt_updated', { debt: debtAfter });
       SocketEmitter.emitToUser(clientId, 'wallet.updated', { debt: debtAfter });
       SocketEmitter.emitToUser(clientId, 'order.created', order);
       SocketEmitter.emitToUser(clientId, 'notification.created', notification);
       SocketEmitter.emitToAdmin('order.created', { order, client: { fullName: user.fullName, username: user.username } });
+      SocketEmitter.emitToAdmin('notification.created', {
+        title: adminNotifTitle,
+        message: adminNotifMessage,
+        type: NotificationType.ORDER_CREATED,
+        createdAt: new Date().toISOString()
+      });
+
+      // FCM: notify client + admins when app is closed
+      FcmEmitter.emitToUser(clientId, notification.title, notification.message).catch(() => {});
+      FcmEmitter.emitToAdmins(
+        adminNotifTitle,
+        `قام ${user.fullName} بشراء باقة ${pack.name} (${pack.dataAmount}) للرقم ${cleanedPhone}`,
+        {
+          orderId: order._id.toString(),
+          orderNumber,
+          type: 'ORDER_CREATED'
+        }
+      ).catch(() => {});
 
       return order;
     });
@@ -229,7 +279,7 @@ export class OrderService {
         session
       );
 
-      // Notification
+      // Notification for client
       const notif = await this.notifRepo.create(
         {
           userId: new Types.ObjectId(clientId),
@@ -241,6 +291,26 @@ export class OrderService {
         session
       );
 
+      // Create Notification in DB for all admins
+      const clientUser = await this.userRepo.findById(clientId, session);
+      const clientName = clientUser ? clientUser.fullName : 'العميل';
+      const adminCancelTitle = '⚠️ إلغاء طلب شراء';
+      const adminCancelMessage = `قام العميل ${clientName} بإلغاء طلب الشحن رقم ${order.orderNumber} بقيمة ${order.price.toFixed(3)} د.ت`;
+      const admins = await UserModel.find({ role: UserRole.ADMIN }).session(session || null);
+      for (const admin of admins) {
+        const adminNotif = await this.notifRepo.create(
+          {
+            userId: admin._id,
+            title: adminCancelTitle,
+            message: adminCancelMessage,
+            type: NotificationType.ORDER_CANCELLED,
+            metadata: { orderId: order._id.toString(), orderNumber: order.orderNumber, clientId }
+          },
+          session
+        );
+        SocketEmitter.emitToUser(admin._id.toString(), 'notification.created', adminNotif);
+      }
+
       // Realtime
       SocketEmitter.emitToUser(clientId, 'user.debt_updated', { debt: debtAfter });
       SocketEmitter.emitToUser(clientId, 'wallet.updated', { debt: debtAfter });
@@ -248,6 +318,26 @@ export class OrderService {
       SocketEmitter.emitToUser(clientId, 'order.updated', order);
       SocketEmitter.emitToUser(clientId, 'notification.created', notif);
       SocketEmitter.emitToAdmin('order.updated', order);
+      SocketEmitter.emitToAdmin('order.cancelled', order);
+      SocketEmitter.emitToAdmin('notification.created', {
+        title: adminCancelTitle,
+        message: adminCancelMessage,
+        type: NotificationType.ORDER_CANCELLED,
+        createdAt: new Date().toISOString()
+      });
+
+      // FCM
+      FcmEmitter.emitToUser(clientId, notif.title, notif.message).catch(() => {});
+      FcmEmitter.emitToAdmins(
+        adminCancelTitle,
+        `قام العميل ${clientName} بإلغاء طلب الشحن ${order.orderNumber}`,
+        {
+          orderId: order._id.toString(),
+          orderNumber: order.orderNumber,
+          type: 'ORDER_CANCELLED'
+        }
+      ).catch(() => {});
+
 
       return order;
     });
@@ -300,6 +390,9 @@ export class OrderService {
     SocketEmitter.emitToUser(clientId, 'order.updated', order);
     SocketEmitter.emitToUser(clientId, 'notification.created', notif);
     SocketEmitter.emitToAdmin('order.updated', order);
+    // FCM
+    FcmEmitter.emitToUser(clientId, notif.title, notif.message).catch(() => {});
+
 
     return order;
   }
@@ -351,6 +444,9 @@ export class OrderService {
     SocketEmitter.emitToUser(clientId, 'order.updated', order);
     SocketEmitter.emitToUser(clientId, 'notification.created', notif);
     SocketEmitter.emitToAdmin('order.updated', order);
+    // FCM
+    FcmEmitter.emitToUser(clientId, notif.title, notif.message).catch(() => {});
+
 
     return order;
   }
@@ -402,6 +498,9 @@ export class OrderService {
     SocketEmitter.emitToUser(clientId, 'order.updated', order);
     SocketEmitter.emitToUser(clientId, 'notification.created', notif);
     SocketEmitter.emitToAdmin('order.updated', order);
+    // FCM
+    FcmEmitter.emitToUser(clientId, notif.title, notif.message).catch(() => {});
+
 
     return order;
   }
@@ -500,6 +599,9 @@ export class OrderService {
       SocketEmitter.emitToUser(clientId, 'order.updated', order);
       SocketEmitter.emitToUser(clientId, 'notification.created', notif);
       SocketEmitter.emitToAdmin('order.updated', order);
+      // FCM
+      FcmEmitter.emitToUser(clientId, notif.title, notif.message).catch(() => {});
+
 
       return order;
     });
